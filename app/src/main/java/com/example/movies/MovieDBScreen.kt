@@ -31,11 +31,13 @@ import androidx.navigation.compose.rememberNavController
 import com.example.movies.database.Movies
 import com.example.movies.ui.screens.MovieDetailScreen
 import com.example.movies.ui.screens.MovieListScreen
+import com.example.movies.ui.screens.MovieMoreDetailScreen
 import com.example.movies.viewmodels.MovieDBViewModel
 
 enum class MovieDBScreen(@StringRes val title: Int) {
     List(title = R.string.app_name),
-    Detail(title = R.string.movie_details)
+    Detail(title = R.string.movie_details),
+    MoreDetail(title = R.string.more_movie_details)
 
 }
 
@@ -108,6 +110,16 @@ fun TheMovieDBApp(
             composable(route = MovieDBScreen.Detail.name) {
                 uiState.selectedMove?.let { movie ->
                     MovieDetailScreen(
+                        movie = movie,
+                        onMoreDetailsClick = {
+                            navController.navigate(MovieDBScreen.MoreDetail.name)
+                        },
+                        modifier = Modifier)
+                }
+            }
+            composable(route = MovieDBScreen.MoreDetail.name) {
+                uiState.selectedMove?.let { movie ->
+                    MovieMoreDetailScreen(
                         movie = movie,
                         modifier = Modifier)
                 }

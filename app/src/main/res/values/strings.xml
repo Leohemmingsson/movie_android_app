@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">movies</string>
     <string name="movie_details">Movie Details</string>
+    <string name="more_movie_details">Movie More Details</string>
     <string name="back_button">Back button</string>
+    <string name="more_details_button">More details</string>
+    <string name="Imdb_button">Go to IMDB</string>
+    <string name="Home_page_button">Go to Movie home page</string>
 </resources>
