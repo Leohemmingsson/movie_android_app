@@ -85,14 +85,16 @@ fun LinkButton(
 ) {
     val context = LocalContext.current
 
-    Button(
-        onClick = {
-            val intent = Intent(Intent.ACTION_VIEW).setData(Uri.parse(url))
-            context.startActivity(intent)
-        },
-        modifier = Modifier.padding(8.dp)
-    ) {
-        Text(stringResource(buttonText))
+    if (url != "") {
+        Button(
+            onClick = {
+                val intent = Intent(Intent.ACTION_VIEW).setData(Uri.parse(url))
+                context.startActivity(intent)
+            },
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text(stringResource(buttonText))
+        }
     }
 }
 
