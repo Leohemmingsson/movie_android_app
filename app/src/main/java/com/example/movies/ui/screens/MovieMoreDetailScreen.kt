@@ -31,48 +31,69 @@ import com.example.movies.R
 import com.example.movies.model.Movie
 import com.example.movies.ui.theme.MoviesTheme
 import com.example.movies.utils.Constants
+import com.example.movies.viewmodels.SelectedMovieUiState
 
 @Composable
 fun MovieMoreDetailScreen(
-    movie: Movie,
+    selectedMovieUiState: SelectedMovieUiState,
     modifier:Modifier = Modifier
 ) {
-    Column {
-        Box {
-            AsyncImage(
-                model = Constants.BACKDROP_IMAGE_BASE_URL + Constants.BACKDROP_IMAGE_WIDTH + movie.backdropPath,
-                contentDescription = movie.title,
-                modifier = modifier,
-                contentScale = ContentScale.Crop
-            )
-        }
-        Column {
-            Text(
-                text = movie.title,
-                style = MaterialTheme.typography.headlineSmall
-            )
-            Spacer(modifier = Modifier.size(8.dp))
-            GenreRow(movie.genres)
-            Text(
-                text = movie.releaseDate,
-                style = MaterialTheme.typography.bodySmall
-            )
-            Spacer(modifier = Modifier.size(8.dp))
+    when (selectedMovieUiState) {
+        is SelectedMovieUiState.Success -> {
+            Column {
+                Box {
+                    AsyncImage(
+                        model = Constants.BACKDROP_IMAGE_BASE_URL + Constants.BACKDROP_IMAGE_WIDTH + selectedMovieUiState.movie.backdropPath,
+                        contentDescription = selectedMovieUiState.movie.title,
+                        modifier = modifier,
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                Column {
+                    Text(
+                        text = selectedMovieUiState.movie.title,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    GenreRow(selectedMovieUiState.movie.genres)
+                    Text(
+                        text = selectedMovieUiState.movie.releaseDate,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
 
-            Text(
-                text = movie.overview,
-                style = MaterialTheme.typography.bodySmall
-            )
-            Spacer(modifier = Modifier.size(8.dp))
+                    Text(
+                        text = selectedMovieUiState.movie.overview,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                }
+                Row {
+                    LinkButton(
+                        buttonText = R.string.Imdb_button,
+                        url = Constants.IMDB_BASE_URL + selectedMovieUiState.movie.imdbId,
+                    )
+                    LinkButton(
+                        buttonText = R.string.Home_page_button,
+                        url = selectedMovieUiState.movie.homeUrl,
+                    )
+                }
+            }
         }
-        Row {
-            LinkButton(
-                buttonText = R.string.Imdb_button,
-                url = Constants.IMDB_BASE_URL + movie.imdbId,
+
+        is SelectedMovieUiState.Loading -> {
+            Text(
+                text = "Loading...",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(16.dp)
             )
-            LinkButton(
-                buttonText = R.string.Home_page_button,
-                url = movie.homeUrl,
+        }
+
+        is SelectedMovieUiState.Error -> {
+            Text(
+                text = "Error...",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(16.dp)
             )
         }
     }
@@ -126,7 +147,8 @@ fun GenreBadge(genre: String) {
 fun PreviewMoreDetailedScreen() {
     MoviesTheme {
         MovieMoreDetailScreen(
-            movie = Movie(
+            selectedMovieUiState = SelectedMovieUiState.Success(
+                Movie(
                 527774,
                 "Raya and the Last Dragon",
                 "/lPsD10PP4rgUGiGR4CCXA6iY0QQ.jpg",
@@ -142,7 +164,7 @@ fun PreviewMoreDetailedScreen() {
                 ),
                 "https://movies.disney.com/raya-and-the-last-dragon",
                 "tt5109280"
-            ),
+                )),
             modifier = Modifier
                 .fillMaxSize()
         )

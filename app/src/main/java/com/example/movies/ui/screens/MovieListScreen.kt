@@ -24,20 +24,45 @@ import coil.compose.AsyncImage
 import com.example.movies.model.Movie
 import com.example.movies.ui.theme.MoviesTheme
 import com.example.movies.utils.Constants
+import com.example.movies.viewmodels.MovieListUiState
 
 @Composable
 fun MovieListScreen(
-    movieList: List<Movie>,
+    movieListUiState : MovieListUiState,
     onMovieListItemClick: (Movie) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn (modifier=modifier){
-        items(movieList) { movie ->
-            MovieListItemCard(
-                movie = movie,
-                onMovieListItemClick = onMovieListItemClick,
-                modifier = Modifier.padding(8.dp)
-            )
+        when (movieListUiState) {
+            is MovieListUiState.Success -> {
+                items(movieListUiState.movies) { movie ->
+                    MovieListItemCard(
+                        movie = movie,
+                        onMovieListItemClick = onMovieListItemClick,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
+
+            is MovieListUiState.Loading -> {
+                item {
+                    Text(
+                        text = "Loading...",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+
+            is MovieListUiState.Error -> {
+                item {
+                    Text(
+                        text = "Error: Something went wrong!",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
         }
     }
 }

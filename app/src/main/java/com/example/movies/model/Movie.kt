@@ -1,13 +1,34 @@
 package com.example.movies.model
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Movie(
+    @SerialName(value = "id")
     var id: Long = 0L,
+
+    @SerialName(value = "title")
     var title: String,
+
+    @SerialName(value = "poster_path")
     var posterPath: String,
+
+    @SerialName(value = "backdrop_path")
     var backdropPath: String,
+
+    @SerialName(value = "release_date")
     var releaseDate: String,
+
+    @SerialName(value = "overview")
     var overview: String,
-    var genres: List<String>,
-    var homeUrl: String,
-    var imdbId: String
+
+    @SerialName(value = "generes") // This is a bit unclear (it should be genres/name...)
+    var genres: List<String> = listOf(),
+
+    @SerialName(value = "homepage")
+    var homeUrl: String = "",
+
+    @SerialName(value = "imdb_id")
+    var imdbId: String = ""
 )
