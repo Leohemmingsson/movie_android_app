@@ -26,13 +26,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.movies.ui.screens.MovieDetailScreen
 import com.example.movies.ui.screens.MovieListScreen
-import com.example.movies.ui.screens.MovieMoreDetailScreen
 import com.example.movies.viewmodels.MovieDBViewModel
+import com.example.movies.viewmodels.MovieListUiState
+import com.example.movies.viewmodels.SelectedMovieUiState
 
 enum class MovieDBScreen(@StringRes val title: Int) {
     List(title = R.string.app_name),
     Detail(title = R.string.movie_details),
-    MoreDetail(title = R.string.more_movie_details)
 
 }
 
@@ -106,15 +106,8 @@ fun TheMovieDBApp(
             }
 
             composable(route = MovieDBScreen.Detail.name) {
+                movieDBViewModel.getMovieDetails(movieDBViewModel.selectedMovieUiState)
                 MovieDetailScreen(
-                    selectedMovieUiState= movieDBViewModel.selectedMovieUiState,
-                    onMoreDetailsClick = {
-                        navController.navigate(MovieDBScreen.MoreDetail.name)
-                    },
-                    modifier = Modifier)
-            }
-            composable(route = MovieDBScreen.MoreDetail.name) {
-                MovieMoreDetailScreen(
                     selectedMovieUiState= movieDBViewModel.selectedMovieUiState,
                     modifier = Modifier)
             }

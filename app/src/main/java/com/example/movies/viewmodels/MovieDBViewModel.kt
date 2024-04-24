@@ -1,11 +1,13 @@
 package com.example.movies.viewmodels
 
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.movies.MovieDBApplication
@@ -63,6 +65,28 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository): ViewMode
         }
     }
 
+    fun getMovieDetails(selectedMovie: SelectedMovieUiState) {
+        viewModelScope.launch {
+            when (selectedMovie) {
+                is SelectedMovieUiState.Success -> {
+                    val movieId =
+                        (selectedMovie as? SelectedMovieUiState.Success)?.movie?.id?.toString()
+
+                    if (movieId != null) {
+                        val movie: Movie = moviesRepository.getMovieDetails(movie_id = movieId)
+                        setSelectedMovie(movie)
+                    } else {
+                        SelectedMovieUiState.Error
+                    }
+                }
+                is SelectedMovieUiState.Error -> { SelectedMovieUiState.Error }
+                is SelectedMovieUiState.Loading -> {
+                    println("[DEBUGGING] In Loading")
+                    SelectedMovieUiState.Loading }
+                }
+        }
+    }
+
     fun setSelectedMovie(movie: Movie) {
         viewModelScope.launch {
             selectedMovieUiState = SelectedMovieUiState.Loading
@@ -75,6 +99,7 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository): ViewMode
             }
         }
     }
+
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
