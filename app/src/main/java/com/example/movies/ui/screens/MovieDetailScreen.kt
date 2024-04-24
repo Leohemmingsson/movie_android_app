@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.movies.R
+import com.example.movies.model.Genre
 import com.example.movies.model.Movie
 import com.example.movies.ui.theme.MoviesTheme
 import com.example.movies.utils.Constants
@@ -120,10 +121,10 @@ fun LinkButton(
 }
 
 @Composable
-fun GenreRow(genres: List<String>) {
+fun GenreRow(genres: List<Genre>) {
     LazyRow {
         items(genres) { genre ->
-            GenreBadge(genre = genre)
+            GenreBadge(genre = genre.name)
         }
     }
 }
@@ -155,12 +156,9 @@ fun PreviewMoreDetailedScreen() {
                     "/9xeEGUZjgiKlI69jwIOi0hjKUIk.jpg",
                     "2021-03-03",
                     "Long ago, in the fantasy world of Kumandra, humans and dragons lived together in harmony. But when an evil force threatened the land, the dragons sacrificed themselves to save humanity. Now, 500 years later, that same evil has returned and it’s up to a lone warrior, Raya, to track down the legendary last dragon to restore the fractured land and its divided people.",
-                    listOf<String>(
-                        "Animation",
-                        "Family",
-                        "Fantasy",
-                        "Action",
-                        "Adventure"
+                    listOf<Genre>(
+                        Genre(0, "Animation"),
+                        Genre(1,"Family")
                     ),
                     "https://movies.disney.com/raya-and-the-last-dragon",
                     "tt5109280"

@@ -4,6 +4,14 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class Genre(
+    @SerialName("id")
+    val id: Int,
+    @SerialName("name")
+    val name: String
+)
+
+@Serializable
 data class Movie(
     @SerialName(value = "id")
     var id: Long = 0L,
@@ -23,8 +31,8 @@ data class Movie(
     @SerialName(value = "overview")
     var overview: String,
 
-    @SerialName(value = "generes") // This is a bit unclear (it should be genres/name...)
-    var genres: List<String> = listOf(),
+    @SerialName(value = "genres")
+    var genres: List<Genre> = listOf(),
 
     @SerialName(value = "homepage")
     var homeUrl: String = "",
