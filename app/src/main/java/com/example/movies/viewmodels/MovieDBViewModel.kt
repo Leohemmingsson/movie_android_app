@@ -13,6 +13,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.movies.MovieDBApplication
 import com.example.movies.database.MoviesRepository
 import com.example.movies.model.Movie
+import com.example.movies.model.Review
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -24,7 +25,7 @@ sealed interface MovieListUiState {
 }
 
 sealed interface SelectedMovieUiState {
-    data class Success(val movie: Movie) : SelectedMovieUiState
+    data class Success(val movie: Movie, val reviews: List<Review>) : SelectedMovieUiState
     object Error : SelectedMovieUiState
     object Loading : SelectedMovieUiState
 }
@@ -69,29 +70,27 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository): ViewMode
         viewModelScope.launch {
             when (selectedMovie) {
                 is SelectedMovieUiState.Success -> {
-                    val movieId =
-                        (selectedMovie as? SelectedMovieUiState.Success)?.movie?.id?.toString()
+                    val movieId = (selectedMovie as? SelectedMovieUiState.Success)?.movie?.id?.toString()
 
                     if (movieId != null) {
-                        val movie: Movie = moviesRepository.getMovieDetails(movie_id = movieId)
-                        setSelectedMovie(movie)
+                        val movie: Movie = moviesRepository.getMovieDetails(movieId)
+                        val reviews: List<Review> = moviesRepository.getMovieReviews(movieId).results
+                        setSelectedMovie(movie = movie, reviews = reviews)
                     } else {
                         SelectedMovieUiState.Error
                     }
                 }
                 is SelectedMovieUiState.Error -> { SelectedMovieUiState.Error }
-                is SelectedMovieUiState.Loading -> {
-                    println("[DEBUGGING] In Loading")
-                    SelectedMovieUiState.Loading }
+                is SelectedMovieUiState.Loading -> { SelectedMovieUiState.Loading }
                 }
         }
     }
 
-    fun setSelectedMovie(movie: Movie) {
+    fun setSelectedMovie(movie: Movie, reviews: List<Review> = listOf()) {
         viewModelScope.launch {
             selectedMovieUiState = SelectedMovieUiState.Loading
             selectedMovieUiState = try {
-                SelectedMovieUiState.Success(movie)
+                SelectedMovieUiState.Success(movie = movie, reviews = reviews)
             } catch (e: IOException) {
                 SelectedMovieUiState.Error
             } catch (e: HttpException) {

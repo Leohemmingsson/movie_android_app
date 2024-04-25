@@ -25,6 +25,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.movies.ui.screens.MovieDetailScreen
+import com.example.movies.ui.screens.MovieGridScreen
 import com.example.movies.ui.screens.MovieListScreen
 import com.example.movies.viewmodels.MovieDBViewModel
 import com.example.movies.viewmodels.MovieListUiState
@@ -93,7 +94,8 @@ fun TheMovieDBApp(
                 .padding(innerPadding)
         ) {
             composable(route = MovieDBScreen.List.name) {
-                    MovieListScreen(
+                    // MovieListScreen(
+                    MovieGridScreen(
                         movieListUiState = movieDBViewModel.movieListUiState,
                         onMovieListItemClick = {movie ->
                             movieDBViewModel.setSelectedMovie(movie)

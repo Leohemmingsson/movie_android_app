@@ -8,13 +8,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,13 +27,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.movies.R
 import com.example.movies.model.Genre
-import com.example.movies.model.Movie
-import com.example.movies.ui.theme.MoviesTheme
+import com.example.movies.model.Review
 import com.example.movies.utils.Constants
 import com.example.movies.viewmodels.SelectedMovieUiState
 
@@ -41,6 +42,7 @@ fun MovieDetailScreen(
 ) {
     when (selectedMovieUiState) {
         is SelectedMovieUiState.Success -> {
+
             Column {
                 Box {
                     AsyncImage(
@@ -78,6 +80,11 @@ fun MovieDetailScreen(
                         buttonText = R.string.Home_page_button,
                         url = selectedMovieUiState.movie.homeUrl,
                     )
+                }
+                Column {
+                    ReviewHorizontal(selectedMovieUiState.reviews)
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text(text = "oo")
                 }
             }
         }
@@ -141,30 +148,47 @@ fun GenreBadge(genre: String) {
     }
 }
 
-
-
-@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun PreviewMoreDetailedScreen() {
-    MoviesTheme {
-        MovieDetailScreen(
-            selectedMovieUiState = SelectedMovieUiState.Success(
-                Movie(
-                    527774,
-                    "Raya and the Last Dragon",
-                    "/lPsD10PP4rgUGiGR4CCXA6iY0QQ.jpg",
-                    "/9xeEGUZjgiKlI69jwIOi0hjKUIk.jpg",
-                    "2021-03-03",
-                    "Long ago, in the fantasy world of Kumandra, humans and dragons lived together in harmony. But when an evil force threatened the land, the dragons sacrificed themselves to save humanity. Now, 500 years later, that same evil has returned and it’s up to a lone warrior, Raya, to track down the legendary last dragon to restore the fractured land and its divided people.",
-                    listOf<Genre>(
-                        Genre(0, "Animation"),
-                        Genre(1,"Family")
-                    ),
-                    "https://movies.disney.com/raya-and-the-last-dragon",
-                    "tt5109280"
-                )),
-            modifier = Modifier
-                .fillMaxSize()
-        )
+fun ReviewHorizontal(reviews: List<Review>) {
+    LazyHorizontalGrid(rows = GridCells.Fixed(1)) {
+        items(reviews) { review ->
+            ReviewCard(review = review)
+        }
     }
 }
+
+@Composable
+fun ReviewCard(review: Review) {
+    Card(modifier = Modifier.size(400.dp)) {
+        Text(text = review.content)
+    }
+}
+
+
+
+
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun PreviewMoreDetailedScreen() {
+//    MoviesTheme {
+//        MovieDetailScreen(
+//            selectedMovieUiState = SelectedMovieUiState.Success(
+//                movie = Movie(
+//                    527774,
+//                    "Raya and the Last Dragon",
+//                    "/lPsD10PP4rgUGiGR4CCXA6iY0QQ.jpg",
+//                    "/9xeEGUZjgiKlI69jwIOi0hjKUIk.jpg",
+//                    "2021-03-03",
+//                    "Long ago, in the fantasy world of Kumandra, humans and dragons lived together in harmony. But when an evil force threatened the land, the dragons sacrificed themselves to save humanity. Now, 500 years later, that same evil has returned and it’s up to a lone warrior, Raya, to track down the legendary last dragon to restore the fractured land and its divided people.",
+//                    listOf<Genre>(
+//                        Genre(0, "Animation"),
+//                        Genre(1,"Family")
+//                    ),
+//                    "https://movies.disney.com/raya-and-the-last-dragon",
+//                    "tt5109280"
+//                )),
+//            modifier = Modifier
+//                .fillMaxSize()
+//        )
+//    }
+//}
