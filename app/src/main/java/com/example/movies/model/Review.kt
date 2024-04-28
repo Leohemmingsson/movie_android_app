@@ -13,7 +13,7 @@ data class AuthorDetails(
     var avatarPath: String?,
 
     @SerialName(value = "rating")
-    var rating: Double
+    var rating: Double?
 )
 
 @Serializable

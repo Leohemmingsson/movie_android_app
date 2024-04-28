@@ -81,7 +81,7 @@ fun MovieGridItemCard(
                 contentAlignment = Alignment.Center
             ){
                 AsyncImage(
-                    model = Constants.POSTER_IMAGE_BASE_URL + Constants.POSTER_IMAGE_WIDTH + movie.posterPath,
+                    model = Constants.POSTER_IMAGE_BASE_URL + Constants.POSTER_IMAGE_WIDTH_LARGE + movie.posterPath,
                     contentDescription = movie.title,
                     modifier = modifier
                         .width(184.dp)

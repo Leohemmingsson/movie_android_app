@@ -3,30 +3,40 @@ package com.example.movies.ui.screens
 import android.content.Intent
 import android.net.Uri
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.movies.R
@@ -43,12 +53,14 @@ fun MovieDetailScreen(
     when (selectedMovieUiState) {
         is SelectedMovieUiState.Success -> {
 
-            Column {
+            Column (
+                modifier = modifier.verticalScroll(rememberScrollState())
+            ){
                 Box {
                     AsyncImage(
                         model = Constants.BACKDROP_IMAGE_BASE_URL + Constants.BACKDROP_IMAGE_WIDTH + selectedMovieUiState.movie.backdropPath,
                         contentDescription = selectedMovieUiState.movie.title,
-                        modifier = modifier,
+                        modifier = Modifier.fillMaxWidth(),
                         contentScale = ContentScale.Crop
                     )
                 }
@@ -83,8 +95,6 @@ fun MovieDetailScreen(
                 }
                 Column {
                     ReviewHorizontal(selectedMovieUiState.reviews)
-                    Spacer(modifier = Modifier.size(8.dp))
-                    Text(text = "oo")
                 }
             }
         }
@@ -144,23 +154,64 @@ fun GenreBadge(genre: String) {
             .padding(horizontal = 4.dp, vertical = 2.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text( text = genre )
+        Text(
+            text = genre,
+            color = Color.Black
+            )
     }
 }
 
 @Composable
 fun ReviewHorizontal(reviews: List<Review>) {
-    LazyHorizontalGrid(rows = GridCells.Fixed(1)) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+    ) {
         items(reviews) { review ->
-            ReviewCard(review = review)
+            ReviewCard(review)
         }
     }
+
 }
 
 @Composable
-fun ReviewCard(review: Review) {
-    Card(modifier = Modifier.size(400.dp)) {
-        Text(text = review.content)
+fun ReviewCard(review: Review, modifier: Modifier = Modifier) {
+    var isExpanded by remember { mutableStateOf(false) } // State to track if the card is expanded
+
+    Card(
+        modifier = Modifier
+            .padding(horizontal = 4.dp)
+            .width(300.dp)
+            .clickable { isExpanded = !isExpanded } // Toggle expand on click
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text(
+                text = "Author: ${review.author.name}",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                text = "Rating: ${review.author.rating}",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            AnimatedVisibility(visible = isExpanded) { // Only show this if expanded
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .heightIn(max = 200.dp) // Limiting the maximum height
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Column(modifier = Modifier.padding(bottom = 8.dp)) {
+                        Text(
+                            text = review.content,
+                            color = Color.Black
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
