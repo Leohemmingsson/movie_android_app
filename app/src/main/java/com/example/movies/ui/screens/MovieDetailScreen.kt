@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,6 +27,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +41,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
+import coil.size.ViewSizeResolver
 import com.example.movies.R
 import com.example.movies.model.Genre
 import com.example.movies.model.Review
@@ -96,8 +105,14 @@ fun MovieDetailScreen(
                 Column {
                     ReviewHorizontal(selectedMovieUiState.reviews)
                 }
+                Spacer(modifier = Modifier.size(16.dp))
+
+                var uri = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                VideoHorizontal(video_uris = listOf(uri, uri))
+                Spacer(modifier = Modifier.size(16.dp))
             }
         }
+
 
         is SelectedMovieUiState.Loading -> {
             Text(
@@ -170,7 +185,6 @@ fun ReviewHorizontal(reviews: List<Review>) {
             ReviewCard(review)
         }
     }
-
 }
 
 @Composable
@@ -216,6 +230,58 @@ fun ReviewCard(review: Review, modifier: Modifier = Modifier) {
 }
 
 
+@Composable
+fun VideoHorizontal(video_uris: List<String>) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp) // Padding around the LazyRow content
+    ) {
+        items(video_uris) { video_uri ->
+            ExoPlayerView(video_uri, Modifier.padding(horizontal = 8.dp)) // Padding between items
+        }
+    }
+}
+
+
+
+@OptIn(UnstableApi::class)
+@Composable
+fun ExoPlayerView(video_uri: String, modifier: Modifier = Modifier) {
+    // Get the current context
+    val context = LocalContext.current
+
+    // Initialize ExoPlayer
+    val exoPlayer = ExoPlayer.Builder(context).build()
+
+    // Create a MediaSource
+    val mediaSource = remember(video_uri) {
+        MediaItem.fromUri(video_uri)
+    }
+
+    // Set MediaSource to ExoPlayer
+    LaunchedEffect(mediaSource) {
+        exoPlayer.setMediaItem(mediaSource)
+        exoPlayer.prepare()
+    }
+
+    // Manage lifecycle events
+    DisposableEffect(Unit) {
+        onDispose {
+            exoPlayer.release()
+        }
+    }
+
+    // Use AndroidView to embed an Android View (PlayerView) into Compose
+    AndroidView(
+        factory = { ctx ->
+            PlayerView(ctx).apply {
+                player = exoPlayer
+            }
+        },
+        modifier = modifier
+            .fillMaxWidth()
+            .height(200.dp) // Set your desired height
+    )
+}
 
 
 //@Preview(showBackground = true, showSystemUi = true)
