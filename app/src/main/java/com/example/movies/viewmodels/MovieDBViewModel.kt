@@ -1,18 +1,17 @@
 package com.example.movies.viewmodels
 
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.movies.MovieDBApplication
 import com.example.movies.database.MoviesRepository
 import com.example.movies.model.Movie
+import com.example.movies.model.MovieVideo
 import com.example.movies.model.Review
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -25,7 +24,7 @@ sealed interface MovieListUiState {
 }
 
 sealed interface SelectedMovieUiState {
-    data class Success(val movie: Movie, val reviews: List<Review>) : SelectedMovieUiState
+    data class Success(val movie: Movie, val reviews: List<Review>, val videos: List<MovieVideo>) : SelectedMovieUiState
     object Error : SelectedMovieUiState
     object Loading : SelectedMovieUiState
 }
@@ -66,31 +65,26 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository): ViewMode
         }
     }
 
-    fun getMovieDetails(selectedMovie: SelectedMovieUiState) {
+    fun getMovieDetails(selectedMovie: Movie) {
         viewModelScope.launch {
-            when (selectedMovie) {
-                is SelectedMovieUiState.Success -> {
-                    val movieId = (selectedMovie as? SelectedMovieUiState.Success)?.movie?.id?.toString()
+                val movieId = selectedMovie.id.toString()
 
-                    if (movieId != null) {
-                        val movie: Movie = moviesRepository.getMovieDetails(movieId)
-                        val reviews: List<Review> = moviesRepository.getMovieReviews(movieId).results
-                        setSelectedMovie(movie = movie, reviews = reviews)
-                    } else {
-                        SelectedMovieUiState.Error
-                    }
-                }
-                is SelectedMovieUiState.Error -> { SelectedMovieUiState.Error }
-                is SelectedMovieUiState.Loading -> { SelectedMovieUiState.Loading }
+                if (movieId != null) {
+                    val movie: Movie = moviesRepository.getMovieDetails(movieId)
+                    val reviews: List<Review> = moviesRepository.getMovieReviews(movieId).results
+                    val videos: List<MovieVideo> = moviesRepository.getMovieVideos(movieId).results
+                    setSelectedMovie(movie = movie, reviews = reviews, videos = videos)
+                } else {
+                    SelectedMovieUiState.Error
                 }
         }
     }
 
-    fun setSelectedMovie(movie: Movie, reviews: List<Review> = listOf()) {
+    fun setSelectedMovie(movie: Movie, reviews: List<Review> = listOf(), videos: List<MovieVideo> = listOf()) {
         viewModelScope.launch {
             selectedMovieUiState = SelectedMovieUiState.Loading
             selectedMovieUiState = try {
-                SelectedMovieUiState.Success(movie = movie, reviews = reviews)
+                SelectedMovieUiState.Success(movie = movie, reviews = reviews, videos = videos)
             } catch (e: IOException) {
                 SelectedMovieUiState.Error
             } catch (e: HttpException) {

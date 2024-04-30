@@ -2,6 +2,7 @@ package com.example.movies.network
 
 import com.example.movies.model.Movie
 import com.example.movies.model.MovieListResponse
+import com.example.movies.model.MovieVideoResponse
 import com.example.movies.model.ReviewListResponse
 import com.example.movies.utils.Constants
 import retrofit2.http.GET
@@ -36,4 +37,13 @@ interface MovieDBApiService {
         @Query("api_key")
         apiKey: String = Constants.API_KEY
     ): ReviewListResponse
+
+    @GET("{movie_id}/videos")
+    suspend fun getMovieVideos(
+        @Path("movie_id")
+        movie_id: String,
+        @Query("api_key")
+        apiKey: String = Constants.API_KEY
+    ): MovieVideoResponse
+
 }

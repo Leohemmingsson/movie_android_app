@@ -50,6 +50,7 @@ import coil.compose.AsyncImage
 import coil.size.ViewSizeResolver
 import com.example.movies.R
 import com.example.movies.model.Genre
+import com.example.movies.model.MovieVideo
 import com.example.movies.model.Review
 import com.example.movies.utils.Constants
 import com.example.movies.viewmodels.SelectedMovieUiState
@@ -107,8 +108,7 @@ fun MovieDetailScreen(
                 }
                 Spacer(modifier = Modifier.size(16.dp))
 
-                var uri = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-                VideoHorizontal(video_uris = listOf(uri, uri))
+                VideoHorizontal(selectedMovieUiState.videos)
                 Spacer(modifier = Modifier.size(16.dp))
             }
         }
@@ -231,11 +231,12 @@ fun ReviewCard(review: Review, modifier: Modifier = Modifier) {
 
 
 @Composable
-fun VideoHorizontal(video_uris: List<String>) {
+fun VideoHorizontal(video_uris: List<MovieVideo>) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp) // Padding around the LazyRow content
     ) {
-        items(video_uris) { video_uri ->
+        items(video_uris) { video ->
+            var video_uri = Constants.YOUTUBE_BASE_URL + video.key
             ExoPlayerView(video_uri, Modifier.padding(horizontal = 8.dp)) // Padding between items
         }
     }

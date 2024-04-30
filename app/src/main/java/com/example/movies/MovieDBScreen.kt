@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -24,6 +25,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.movies.model.Genre
+import com.example.movies.model.Movie
 import com.example.movies.ui.screens.MovieDetailScreen
 import com.example.movies.ui.screens.MovieGridScreen
 import com.example.movies.ui.screens.MovieListScreen
@@ -98,7 +101,8 @@ fun TheMovieDBApp(
                     MovieGridScreen(
                         movieListUiState = movieDBViewModel.movieListUiState,
                         onMovieListItemClick = {movie ->
-                            movieDBViewModel.setSelectedMovie(movie)
+
+                            movieDBViewModel.getMovieDetails(movie)
                             navController.navigate(MovieDBScreen.Detail.name)
                         },
                         modifier = Modifier
@@ -108,11 +112,12 @@ fun TheMovieDBApp(
             }
 
             composable(route = MovieDBScreen.Detail.name) {
-                movieDBViewModel.getMovieDetails(movieDBViewModel.selectedMovieUiState)
                 MovieDetailScreen(
                     selectedMovieUiState= movieDBViewModel.selectedMovieUiState,
-                    modifier = Modifier)
+                    modifier = Modifier
+                )
             }
+
 
         }
     }
