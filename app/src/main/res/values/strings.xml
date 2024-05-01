@@ -6,4 +6,7 @@
     <string name="more_details_button">More details</string>
     <string name="Imdb_button">Go to IMDB</string>
     <string name="Home_page_button">Go to Movie home page</string>
+    <string name="popular_movies">Popular Movies</string>
+    <string name="top_rated_movies">Top rated movies</string>
+    <string name="saved_movies">Saved movies</string>
 </resources>

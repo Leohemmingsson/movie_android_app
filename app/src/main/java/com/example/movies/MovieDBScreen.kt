@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -16,6 +19,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -47,12 +53,57 @@ fun MovieDBAppBar(
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
+    movieDBViewModel: MovieDBViewModel
 ) {
+    var menuExpanded by remember {
+        mutableStateOf(false)
+    }
     TopAppBar(
         title = { Text(stringResource(currentScreen.title)) },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
+        actions = {
+            if (currentScreen == MovieDBScreen.List) {
+                IconButton(onClick = {
+                    menuExpanded = !menuExpanded
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = "Open menu to select different movie lists"
+                    )
+
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false }) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.popular_movies)) },
+                            onClick = {
+                                movieDBViewModel.getPopularMovies()
+
+                                menuExpanded = false
+                            })
+
+                        DropdownMenuItem(text = {
+                            Text(stringResource(R.string.top_rated_movies))
+                        }, onClick = {
+                            movieDBViewModel.getTopRatedMovies()
+
+                            menuExpanded = false
+                        })
+
+                        DropdownMenuItem(text = {
+                            Text(stringResource(R.string.saved_movies))
+                        }, onClick = {
+                            movieDBViewModel.getSavedMovies()
+
+                            menuExpanded = false
+                        })
+                    }
+
+                }
+            }
+        },
         modifier = modifier,
         navigationIcon = {
             if (canNavigateBack) {
@@ -68,6 +119,7 @@ fun MovieDBAppBar(
     )
 }
 
+
 @Composable
 fun TheMovieDBApp(
     navController: NavHostController = rememberNavController()
@@ -78,16 +130,18 @@ fun TheMovieDBApp(
         backStackEntry?.destination?.route ?: MovieDBScreen.List.name
     )
 
+    val movieDBViewModel : MovieDBViewModel = viewModel(factory = MovieDBViewModel.Factory)
+
     Scaffold (
         topBar = {
             MovieDBAppBar(
                 currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() }
+                navigateUp = { navController.navigateUp() },
+                movieDBViewModel = movieDBViewModel
             )
         }
     ) {innerPadding ->
-        val movieDBViewModel : MovieDBViewModel = viewModel(factory = MovieDBViewModel.Factory)
 
         NavHost(
             navController = navController,
@@ -113,7 +167,7 @@ fun TheMovieDBApp(
 
             composable(route = MovieDBScreen.Detail.name) {
                 MovieDetailScreen(
-                    selectedMovieUiState= movieDBViewModel.selectedMovieUiState,
+                    movieDBViewModel = movieDBViewModel,
                     modifier = Modifier
                 )
             }

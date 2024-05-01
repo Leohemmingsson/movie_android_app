@@ -34,3 +34,28 @@ class NetworkMoviesRepository(private val apiService: MovieDBApiService): Movies
         return apiService.getMovieVideos(movie_id)
     }
 }
+
+interface SavedMoviesRepository {
+    suspend fun getSavedMovies(): List<Movie>
+    suspend fun insertMovie(movie: Movie)
+    suspend fun getMovie(id: Long): Movie
+    suspend fun deleteMovie(id: Long)
+}
+
+class FavoriteMoviesRepository(private val movieDao: MovieDao): SavedMoviesRepository{
+    override suspend fun getSavedMovies(): List<Movie> {
+        return movieDao.getFavoriteMovies()
+    }
+
+    override suspend fun insertMovie(movie: Movie) {
+        movieDao.insertFavoriteMovie(movie)
+    }
+
+    override suspend fun getMovie(id: Long): Movie {
+        return movieDao.getMovie(id)
+    }
+
+    override suspend fun deleteMovie(id: Long) {
+        movieDao.deleteFavoriteMovie(id)
+    }
+}

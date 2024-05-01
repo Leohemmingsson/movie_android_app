@@ -25,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -53,13 +54,16 @@ import com.example.movies.model.Genre
 import com.example.movies.model.MovieVideo
 import com.example.movies.model.Review
 import com.example.movies.utils.Constants
+import com.example.movies.viewmodels.MovieDBViewModel
 import com.example.movies.viewmodels.SelectedMovieUiState
 
 @Composable
 fun MovieDetailScreen(
-    selectedMovieUiState: SelectedMovieUiState,
+    movieDBViewModel: MovieDBViewModel,
     modifier:Modifier = Modifier
 ) {
+    val selectedMovieUiState = movieDBViewModel.selectedMovieUiState
+
     when (selectedMovieUiState) {
         is SelectedMovieUiState.Success -> {
 
@@ -93,6 +97,21 @@ fun MovieDetailScreen(
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                 }
+                Spacer(modifier = Modifier.size(8.dp))
+                Row {
+                    Text(
+                        text = "Favorite",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Switch(checked = selectedMovieUiState.isFavorite, onCheckedChange = {
+                        if (it) {
+                            movieDBViewModel.saveMovie(selectedMovieUiState)
+                        } else {
+                            movieDBViewModel.deleteMovie(selectedMovieUiState)
+                        }
+                    })
+                }
+                Spacer(modifier = Modifier.size(8.dp))
                 Row {
                     LinkButton(
                         buttonText = R.string.Imdb_button,

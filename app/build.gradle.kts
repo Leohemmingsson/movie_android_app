@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
+    id("com.google.devtools.ksp") version "1.9.20-1.0.14"
 
 }
 
@@ -77,6 +78,16 @@ dependencies {
     // video
     implementation("androidx.media3:media3-exoplayer:1.2.0")
     implementation("androidx.media3:media3-ui:1.2.0")
+
+    // Room
+    implementation("androidx.room:room-runtime:${rootProject.extra["roomVersion"]}")
+    implementation("androidx.core:core-ktx:1.13.0")
+    ksp("androidx.room:room-compiler:${rootProject.extra["roomVersion"]}")
+    implementation("androidx.room:room-ktx:${rootProject.extra["roomVersion"]}")
+
+    // Gson
+    implementation("com.google.code.gson:gson:2.9.0")
+
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
