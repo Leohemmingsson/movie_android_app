@@ -88,6 +88,9 @@ dependencies {
     // Gson
     implementation("com.google.code.gson:gson:2.9.0")
 
+    // Work manager
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
