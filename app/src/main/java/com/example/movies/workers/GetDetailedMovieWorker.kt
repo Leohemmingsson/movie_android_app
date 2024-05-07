@@ -15,8 +15,6 @@ private const val TAG = "GetDetailedMovieWorker"
 
 class GetDetailedMovieWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
     override suspend fun doWork(): Result {
-        var repo = WorkManagerRepository(applicationContext)
-
 
         return withContext(Dispatchers.IO) {
 

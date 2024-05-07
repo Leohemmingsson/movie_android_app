@@ -24,20 +24,16 @@ class WorkManagerRepository(context: Context): GetMoviesRepository {
 
     override val outputWorkInfo: Flow<WorkInfo?> = MutableStateFlow(null)
     override fun getMovies(movieType: String) {
-        // Add WorkRequest to blur the image
         val getMovieBuilder = OneTimeWorkRequestBuilder<GetMoviesWorker>()
 
-        // Input the Uri for the blur operation along with the blur level
         getMovieBuilder.setInputData(createInputDataForWorkRequest(movieType))
 
         workManager.enqueue(getMovieBuilder.build())
     }
 
     override fun getDetailedMovie(movie: Movie) {
-        // Add WorkRequest to blur the image
         val getMovieBuilder = OneTimeWorkRequestBuilder<GetDetailedMovieWorker>()
 
-        // Input the Uri for the blur operation along with the blur level
         getMovieBuilder.setInputData(createInputDataForDetailedMovieRequest(movie))
 
         workManager.enqueue(getMovieBuilder.build())

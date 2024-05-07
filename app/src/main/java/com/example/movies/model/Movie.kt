@@ -44,5 +44,9 @@ data class Movie(
     var homeUrl: String = "",
 
     @SerialName(value = "imdb_id")
-    var imdbId: String = ""
+    var imdbId: String = "",
+
+    var isFavorite: Boolean = false,
+
+    var latest: Int  = 0
 )

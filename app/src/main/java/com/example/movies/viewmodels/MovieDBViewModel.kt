@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.movies.MovieDBApplication
-import com.example.movies.database.FavoriteMoviesRepository
 import com.example.movies.database.MoviesRepository
 import com.example.movies.database.SavedMoviesRepository
 import com.example.movies.model.Movie
@@ -86,7 +85,7 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository, private v
         viewModelScope.launch {
             movieListUiState = MovieListUiState.Loading
             movieListUiState = try {
-                MovieListUiState.Success(savedMoviesRepository.getSavedMovies())
+                MovieListUiState.Success(savedMoviesRepository.getFavoriteMovies())
             } catch (e: IOException) {
                 MovieListUiState.Error
             } catch (e: HttpException) {
@@ -95,16 +94,16 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository, private v
         }
     }
 
-    fun saveMovie(selectedState: SelectedMovieUiState.Success) {
+    fun saveFavoriteMovie(selectedState: SelectedMovieUiState.Success) {
         viewModelScope.launch {
-            savedMoviesRepository.insertMovie(selectedState.movie)
+            savedMoviesRepository.insertFavoriteMovie(selectedState.movie)
             selectedMovieUiState = SelectedMovieUiState.Success(selectedState.movie, selectedState.reviews, selectedState.videos, true)
         }
     }
 
-    fun deleteMovie(selectedState: SelectedMovieUiState.Success) {
+    fun deleteFavoriteMovie(selectedState: SelectedMovieUiState.Success) {
         viewModelScope.launch {
-            savedMoviesRepository.deleteMovie(selectedState.movie.id)
+            savedMoviesRepository.deleteFavoriteMovie(selectedState.movie.id)
             selectedMovieUiState = SelectedMovieUiState.Success(selectedState.movie, selectedState.reviews, selectedState.videos, false)
         }
     }
@@ -113,7 +112,7 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository, private v
         viewModelScope.launch {
             selectedMovieUiState = SelectedMovieUiState.Loading
             selectedMovieUiState = try {
-                SelectedMovieUiState.Success(movie = movie, reviews = reviews, videos = videos, savedMoviesRepository.getMovie(movie.id) != null)
+                SelectedMovieUiState.Success(movie = movie, reviews = reviews, videos = videos, savedMoviesRepository.getFavoriteMovie(movie.id)?.isFavorite ?: false)
             } catch (e: IOException) {
                 SelectedMovieUiState.Error
             } catch (e: HttpException) {

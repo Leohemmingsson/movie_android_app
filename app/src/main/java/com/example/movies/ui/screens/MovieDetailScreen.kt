@@ -48,7 +48,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
-import coil.size.ViewSizeResolver
 import com.example.movies.R
 import com.example.movies.model.Genre
 import com.example.movies.model.MovieVideo
@@ -105,9 +104,9 @@ fun MovieDetailScreen(
                     )
                     Switch(checked = selectedMovieUiState.isFavorite, onCheckedChange = {
                         if (it) {
-                            movieDBViewModel.saveMovie(selectedMovieUiState)
+                            movieDBViewModel.saveFavoriteMovie(selectedMovieUiState)
                         } else {
-                            movieDBViewModel.deleteMovie(selectedMovieUiState)
+                            movieDBViewModel.deleteFavoriteMovie(selectedMovieUiState)
                         }
                     })
                 }
@@ -127,7 +126,7 @@ fun MovieDetailScreen(
                 }
                 Spacer(modifier = Modifier.size(16.dp))
 
-                VideoHorizontal(selectedMovieUiState.videos)
+//                VideoHorizontal(selectedMovieUiState.videos)
                 Spacer(modifier = Modifier.size(16.dp))
             }
         }

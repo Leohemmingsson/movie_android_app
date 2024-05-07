@@ -11,7 +11,7 @@ import com.example.movies.model.Movie
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-@Database(entities = [Movie::class], version = 1, exportSchema = false)
+@Database(entities = [Movie::class], version = 3, exportSchema = false)
 @TypeConverters(GenreTypeConverter::class)
 abstract class MovieDatabase : RoomDatabase() {
 

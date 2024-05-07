@@ -36,26 +36,44 @@ class NetworkMoviesRepository(private val apiService: MovieDBApiService): Movies
 }
 
 interface SavedMoviesRepository {
-    suspend fun getSavedMovies(): List<Movie>
-    suspend fun insertMovie(movie: Movie)
-    suspend fun getMovie(id: Long): Movie
-    suspend fun deleteMovie(id: Long)
+    suspend fun getFavoriteMovies(): List<Movie>
+    suspend fun insertFavoriteMovie(movie: Movie)
+    suspend fun getFavoriteMovie(id: Long): Movie
+    suspend fun deleteFavoriteMovie(id: Long)
+    suspend fun getLatestMovies()
+    suspend fun deleteNotFavoriteMovies()
 }
 
 class FavoriteMoviesRepository(private val movieDao: MovieDao): SavedMoviesRepository{
-    override suspend fun getSavedMovies(): List<Movie> {
+    override suspend fun getFavoriteMovies(): List<Movie> {
         return movieDao.getFavoriteMovies()
     }
 
-    override suspend fun insertMovie(movie: Movie) {
-        movieDao.insertFavoriteMovie(movie)
+    override suspend fun insertFavoriteMovie(movie: Movie) {
+        val existingMovie = movieDao.getMovie(movie.id)
+        if (existingMovie == null) {
+            movie.isFavorite = true
+            movieDao.insertMovie(movie)
+        } else {
+            movieDao.setToFavoriteMovie(movie.id)
+        }
     }
 
-    override suspend fun getMovie(id: Long): Movie {
+    override suspend fun getFavoriteMovie(id: Long): Movie {
         return movieDao.getMovie(id)
     }
 
-    override suspend fun deleteMovie(id: Long) {
+    override suspend fun deleteFavoriteMovie(id: Long) {
+        movieDao.unFavoriteMovie(id)
         movieDao.deleteFavoriteMovie(id)
+    }
+
+    override suspend fun getLatestMovies() {
+        movieDao.getLatestMovies()
+    }
+
+    override suspend fun deleteNotFavoriteMovies() {
+        movieDao.setLatestToZero()
+        movieDao.deleteNonFavoriteMovies()
     }
 }
