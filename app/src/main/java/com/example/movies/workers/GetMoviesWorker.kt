@@ -8,6 +8,8 @@ import com.example.movies.R
 import com.example.movies.database.DefaultAppContainer
 import com.example.movies.database.MovieDao
 import com.example.movies.database.MovieDatabase
+import com.example.movies.model.MovieListResponse
+import com.example.movies.utils.isNetworkAvailable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -19,21 +21,29 @@ class GetMoviesWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(
 
 
     override suspend fun doWork(): Result {
-        val test = appContainer.moviesRepository.getPopularMovies()
+        if (!isNetworkAvailable(applicationContext)) {
+            return Result.retry()
+        }
+        val typeOfList = inputData.getString("MOVIE_TYPES")
+        println("[DEBUG] typeOfList: $typeOfList")
 
-        return withContext(Dispatchers.IO) {
+        var movies_response: MovieListResponse? = null
 
-            return@withContext try {
-                TODO()
-                Result.success()
-            } catch (throwable: Throwable) {
-                Log.e(
-                    TAG,
-                    applicationContext.resources.getString(R.string.error_getting_movies),
-                    throwable
-                )
-                Result.failure()
+        when (typeOfList) {
+            "popular" -> {
+                movies_response = appContainer.moviesRepository.getPopularMovies()
+                appContainer.savedMoviesRepository.insertLatestMovies(movies_response.results, 1)
+            }
+            "top_ranked" -> {
+                movies_response = appContainer.moviesRepository.getTopRankedMovies()
+                appContainer.savedMoviesRepository.insertLatestMovies(movies_response.results, 2)
+            }
+            else -> {
+                Log.e(TAG, "Invalid movie type")
             }
         }
+        println("[DEBUG] movies: ${movies_response?.results}")
+
+        return Result.success()
     }
 }

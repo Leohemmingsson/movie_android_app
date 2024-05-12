@@ -8,9 +8,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.work.impl.workers.ConstraintTrackingWorker
 import com.example.movies.MovieDBApplication
 import com.example.movies.database.MoviesRepository
 import com.example.movies.database.SavedMoviesRepository
+import com.example.movies.database.WorkManagerRepository
 import com.example.movies.model.Movie
 import com.example.movies.model.MovieVideo
 import com.example.movies.model.Review
@@ -30,7 +32,12 @@ sealed interface SelectedMovieUiState {
     object Loading : SelectedMovieUiState
 }
 
-class MovieDBViewModel(private val moviesRepository: MoviesRepository, private val savedMoviesRepository: SavedMoviesRepository): ViewModel() {
+
+class MovieDBViewModel(
+    private val moviesRepository: MoviesRepository,
+    private val savedMoviesRepository: SavedMoviesRepository,
+    private val workerManagerRepository: WorkManagerRepository
+): ViewModel() {
     var movieListUiState: MovieListUiState by mutableStateOf(MovieListUiState.Loading)
         private set
     var selectedMovieUiState: SelectedMovieUiState by mutableStateOf(SelectedMovieUiState.Loading)
@@ -43,8 +50,12 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository, private v
     fun getPopularMovies() {
         viewModelScope.launch {
             movieListUiState = MovieListUiState.Loading
+
+            workerManagerRepository.getMovies("popular")
+
             movieListUiState = try {
-                MovieListUiState.Success(moviesRepository.getPopularMovies().results)
+                MovieListUiState.Success(savedMoviesRepository.getLatestMovies(1))
+//                MovieListUiState.Success(moviesRepository.getPopularMovies().results)
             } catch (e: IOException) {
                 MovieListUiState.Error
             } catch (e: HttpException) {
@@ -56,8 +67,10 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository, private v
     fun getTopRatedMovies() {
         viewModelScope.launch {
             movieListUiState = MovieListUiState.Loading
+//            workerManagerRepository.getMovies("top_ranked")
             movieListUiState = try {
-                MovieListUiState.Success(moviesRepository.getTopRankedMovies().results)
+                MovieListUiState.Success(savedMoviesRepository.getLatestMovies(2))
+//                MovieListUiState.Success(moviesRepository.getTopRankedMovies().results)
             } catch (e: IOException) {
                 MovieListUiState.Error
             } catch (e: HttpException) {
@@ -68,13 +81,15 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository, private v
 
     fun getMovieDetails(selectedMovie: Movie) {
         viewModelScope.launch {
-                val movieId = selectedMovie.id.toString()
+                val movieId = selectedMovie.id
 
                 if (movieId != null) {
-                    val movie: Movie = moviesRepository.getMovieDetails(movieId)
-                    val reviews: List<Review> = moviesRepository.getMovieReviews(movieId).results
-                    val videos: List<MovieVideo> = moviesRepository.getMovieVideos(movieId).results
-                    setSelectedMovie(movie = movie, reviews = reviews, videos = videos)
+//                    val movie: Movie = moviesRepository.getMovieDetails(movieId)
+//                    val reviews: List<Review> = moviesRepository.getMovieReviews(movieId).results
+//                    val videos: List<MovieVideo> = moviesRepository.getMovieVideos(movieId).results
+                    val movie = savedMoviesRepository.getMovie(movieId)
+                    setSelectedMovie(movie = movie)
+//                    setSelectedMovie(movie = movie, reviews = reviews, videos = videos)
                 } else {
                     SelectedMovieUiState.Error
                 }
@@ -129,7 +144,8 @@ class MovieDBViewModel(private val moviesRepository: MoviesRepository, private v
                 val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MovieDBApplication)
                 val moviesRepository = application.container.moviesRepository
                 val savedMovieRepository = application.container.savedMoviesRepository
-                MovieDBViewModel(moviesRepository = moviesRepository, savedMoviesRepository = savedMovieRepository)
+                val workerManagerRepository = application.container.workerManagerRepository
+                MovieDBViewModel(moviesRepository = moviesRepository, savedMoviesRepository = savedMovieRepository, workerManagerRepository = workerManagerRepository)
             }
         }
     }

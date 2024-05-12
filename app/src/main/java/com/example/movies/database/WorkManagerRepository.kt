@@ -1,7 +1,9 @@
 package com.example.movies.database
 
 import android.content.Context
+import androidx.work.Constraints
 import androidx.work.Data
+import androidx.work.NetworkType
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import kotlinx.coroutines.flow.Flow
@@ -23,10 +25,17 @@ class WorkManagerRepository(context: Context): GetMoviesRepository {
     private val workManager = WorkManager.getInstance(context)
 
     override val outputWorkInfo: Flow<WorkInfo?> = MutableStateFlow(null)
-    override fun getMovies(movieType: String) {
+    override fun getMovies(movieTypes: String) {
         val getMovieBuilder = OneTimeWorkRequestBuilder<GetMoviesWorker>()
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(
+                        NetworkType.CONNECTED
+                    )
+                    .build()
+            )
 
-        getMovieBuilder.setInputData(createInputDataForWorkRequest(movieType))
+        getMovieBuilder.setInputData(createInputDataForWorkRequest(movieTypes))
 
         workManager.enqueue(getMovieBuilder.build())
     }
@@ -43,7 +52,7 @@ class WorkManagerRepository(context: Context): GetMoviesRepository {
 
     private fun createInputDataForWorkRequest(movieType: String): Data {
         val builder = Data.Builder()
-        builder.putString("MOVIE_TYPE", movieType.toString())
+        builder.putString("MOVIE_TYPES", movieType.toString())
         return builder.build()
     }
 

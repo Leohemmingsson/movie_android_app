@@ -29,7 +29,7 @@ data class Movie(
     var posterPath: String,
 
     @SerialName(value = "backdrop_path")
-    var backdropPath: String,
+    var backdropPath: String?,
 
     @SerialName(value = "release_date")
     var releaseDate: String,
@@ -44,7 +44,7 @@ data class Movie(
     var homeUrl: String = "",
 
     @SerialName(value = "imdb_id")
-    var imdbId: String = "",
+    var imdbId: String? = "",
 
     var isFavorite: Boolean = false,
 

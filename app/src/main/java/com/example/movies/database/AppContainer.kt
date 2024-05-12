@@ -12,6 +12,7 @@ import retrofit2.Retrofit
 interface AppContainer {
     val moviesRepository: MoviesRepository
     val savedMoviesRepository: SavedMoviesRepository
+    val workerManagerRepository: WorkManagerRepository
 }
 
 
@@ -49,5 +50,9 @@ class DefaultAppContainer(private val context: Context): AppContainer {
 
     override val savedMoviesRepository: SavedMoviesRepository by lazy {
         FavoriteMoviesRepository(MovieDatabase.getDatabase(context).movieDao())
+    }
+
+    override val workerManagerRepository: WorkManagerRepository by lazy {
+        WorkManagerRepository(context)
     }
 }
