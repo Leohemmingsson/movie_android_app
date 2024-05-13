@@ -78,6 +78,7 @@ class FavoriteMoviesRepository(private val movieDao: MovieDao): SavedMoviesRepos
     }
 
     override suspend fun deleteNotFavoriteOrLatest(latestType: Int) {
+        movieDao.setLatestToZeroIfNotLatest(latestType)
         movieDao.deleteNonFavoriteOrLatest(latestType)
     }
 

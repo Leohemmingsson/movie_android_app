@@ -56,22 +56,20 @@ class MovieDBViewModel(
     var currentMovieView by mutableStateOf<Int>(1)
         private set
 
+    var hasInternet by mutableStateOf<Boolean>(true)
+        private set
+
     init {
-        println("[DEBUG] In MovieDBViewModel init")
         networkHandler.getNetworkLiveData().observeForever { isAvailable ->
             if (isAvailable) {
-                println("[DEBUG] Network is available!")
+                println("[DEBUG] Is internet")
+                hasInternet = true
                 reloadMovies()
             } else {
+                println("[DEBUG] Is no internet")
+                hasInternet = false
                 selectedMovieUiState = SelectedMovieUiState.NoInternet
-                viewModelScope.launch {
-                    val isSaved = savedMoviesRepository.getLatestMovies(currentMovieView) != emptyArray<Movie>()
-                    if (isSaved) {
-                        loadMovies()
-                    } else {
-                        setNoInternet()
-                    }
-                }
+                loadMovies()
             }
         }
     }
@@ -112,8 +110,15 @@ override fun onCleared() {
 }
 
     fun getPopularMovies() {
+        println("getPopularMovies")
         viewModelScope.launch {
-            println("[DEBUG] In getPopularMovies")
+            if (!hasInternet && (savedMoviesRepository.getLatestMovies(1) == emptyList<Movie>())) {
+                setNoInternet()
+                return@launch
+            } else if (hasInternet) {
+                workerManagerRepository.getMovies("popular")
+            }
+            delay(1000L)
             currentMovieView = 1
             movieListUiState = MovieListUiState.Loading
 
@@ -132,6 +137,13 @@ override fun onCleared() {
 
     fun getTopRatedMovies() {
         viewModelScope.launch {
+            if (!hasInternet && (savedMoviesRepository.getLatestMovies(2) == emptyList<Movie>())) {
+                    setNoInternet()
+                    return@launch
+            } else if (hasInternet) {
+                workerManagerRepository.getMovies("top_ranked")
+            }
+            delay(1000L)
             currentMovieView = 2
             movieListUiState = MovieListUiState.Loading
 
@@ -150,11 +162,9 @@ override fun onCleared() {
 
     fun getMovieDetails(selectedMovie: Movie) {
         viewModelScope.launch {
-            networkHandler.getNetworkLiveData().asFlow().first().let { isAvailable ->
-                if (!isAvailable) {
-                    selectedMovieUiState = SelectedMovieUiState.NoInternet
-                    return@launch
-                }
+            if (!hasInternet) {
+                selectedMovieUiState = SelectedMovieUiState.NoInternet
+                return@launch
             }
 
             val movieId = selectedMovie.id.toString()
