@@ -47,6 +47,9 @@ class MovieDBViewModel(
     var selectedMovieUiState: SelectedMovieUiState by mutableStateOf(SelectedMovieUiState.Loading)
         private set
 
+    var currentMovieView by mutableStateOf<String>("popular")
+        private set
+
     init {
 //        getPopularMovies()
         networkHandler.getNetworkLiveData().observeForever { isAvailable ->
@@ -58,9 +61,17 @@ class MovieDBViewModel(
     }
 
 private fun reloadMovies() {
-    getPopularMovies()
-    getTopRatedMovies()
-    // Additional data reload methods
+    when (currentMovieView) {
+        "popular" -> {
+            getPopularMovies()
+        }
+        "top_ranked" -> {
+            getTopRatedMovies()
+        }
+        "favorite" -> {
+            getSavedMovies()
+        }
+    }
 }
 
 override fun onCleared() {
@@ -83,13 +94,13 @@ override fun onCleared() {
 
     fun getPopularMovies() {
         viewModelScope.launch {
-          movieListUiState = MovieListUiState.Loading
+            currentMovieView = "popular"
+            movieListUiState = MovieListUiState.Loading
 
             savedMoviesRepository.deleteNotFavoriteOrLatest(1)
 
             workerManagerRepository.getMovies("popular")
-
-            delay(2000L)
+            delay(1000L)
 
             movieListUiState = try {
                 MovieListUiState.Success(savedMoviesRepository.getLatestMovies(1))
@@ -104,14 +115,15 @@ override fun onCleared() {
 
     fun getTopRatedMovies() {
         viewModelScope.launch {
+            currentMovieView = "top_ranked"
             movieListUiState = MovieListUiState.Loading
 
 
             savedMoviesRepository.deleteNotFavoriteOrLatest(2)
 
             workerManagerRepository.getMovies("top_ranked")
+            delay(1000L)
 
-            delay(2000L)
 
             movieListUiState = try {
                 MovieListUiState.Success(savedMoviesRepository.getLatestMovies(2))
@@ -143,6 +155,7 @@ override fun onCleared() {
 
     fun getSavedMovies() {
         viewModelScope.launch {
+            currentMovieView = "favorite"
             movieListUiState = MovieListUiState.Loading
             movieListUiState = try {
                 MovieListUiState.Success(savedMoviesRepository.getFavoriteMovies())
