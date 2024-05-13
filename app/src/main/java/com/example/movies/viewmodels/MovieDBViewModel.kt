@@ -16,6 +16,7 @@ import com.example.movies.database.WorkManagerRepository
 import com.example.movies.model.Movie
 import com.example.movies.model.MovieVideo
 import com.example.movies.model.Review
+import com.example.movies.network.NetworkHandler
 import com.example.movies.utils.isNetworkAvailable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -36,9 +37,10 @@ sealed interface SelectedMovieUiState {
 
 
 class MovieDBViewModel(
-    private val moviesRepository: MoviesRepository,
+//    private val moviesRepository: MoviesRepository,
     private val savedMoviesRepository: SavedMoviesRepository,
-    private val workerManagerRepository: WorkManagerRepository
+    private val workerManagerRepository: WorkManagerRepository,
+    private val networkHandler: NetworkHandler
 ): ViewModel() {
     var movieListUiState: MovieListUiState by mutableStateOf(MovieListUiState.Loading)
         private set
@@ -46,8 +48,38 @@ class MovieDBViewModel(
         private set
 
     init {
-        getPopularMovies()
+//        getPopularMovies()
+        networkHandler.getNetworkLiveData().observeForever { isAvailable ->
+            if (isAvailable) {
+                reloadMovies()
+            }
+        }
+//        observeNetworkChanges()
     }
+
+private fun reloadMovies() {
+    getPopularMovies()
+    getTopRatedMovies()
+    // Additional data reload methods
+}
+
+override fun onCleared() {
+    super.onCleared()
+    networkHandler.unregisterNetworkCallback()
+}
+
+
+//    private fun observeNetworkChanges() {
+//        networkHandler.getNetworkLiveData().observe(this, { isConnected ->
+//            if (isConnected) {
+//                // Code to execute when there is an Internet connection
+//                handleConnectionAvailable()
+//            } else {
+//                // Code to execute when there is no Internet connection
+//                handleConnectionLost()
+//            }
+//        })
+//    }
 
     fun getPopularMovies() {
         viewModelScope.launch {
@@ -122,6 +154,24 @@ class MovieDBViewModel(
         }
     }
 
+
+    fun setErrorView() {
+        viewModelScope.launch {
+            MovieListUiState.Error
+        }
+    }
+    fun setLoadingView() {
+        viewModelScope.launch {
+            MovieListUiState.Loading
+        }
+    }
+
+    fun setListView(movies: List<Movie>) {
+        viewModelScope.launch {
+            MovieListUiState.Success(movies)
+        }
+    }
+
     fun saveFavoriteMovie(selectedState: SelectedMovieUiState.Success) {
         viewModelScope.launch {
             savedMoviesRepository.insertFavoriteMovie(selectedState.movie)
@@ -155,10 +205,11 @@ class MovieDBViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MovieDBApplication)
-                val moviesRepository = application.container.moviesRepository
+//                val moviesRepository = application.container.moviesRepository
                 val savedMovieRepository = application.container.savedMoviesRepository
                 val workerManagerRepository = application.container.workerManagerRepository
-                MovieDBViewModel(moviesRepository = moviesRepository, savedMoviesRepository = savedMovieRepository, workerManagerRepository = workerManagerRepository)
+                val networkHandler = application.container.networkHandler
+                MovieDBViewModel(savedMoviesRepository = savedMovieRepository, workerManagerRepository = workerManagerRepository, networkHandler = networkHandler)
             }
         }
     }

@@ -40,6 +40,7 @@ class WorkManagerRepository(context: Context): GetMoviesRepository {
         workManager.enqueue(getMovieBuilder.build())
     }
 
+
     override fun getDetailedMovie(movie: Movie) {
         val getMovieBuilder = OneTimeWorkRequestBuilder<GetDetailedMovieWorker>()
 

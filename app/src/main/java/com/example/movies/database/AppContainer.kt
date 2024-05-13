@@ -2,6 +2,7 @@ package com.example.movies.database
 
 import android.content.Context
 import com.example.movies.network.MovieDBApiService
+import com.example.movies.network.NetworkHandler
 import com.example.movies.utils.Constants
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
@@ -13,6 +14,7 @@ interface AppContainer {
     val moviesRepository: MoviesRepository
     val savedMoviesRepository: SavedMoviesRepository
     val workerManagerRepository: WorkManagerRepository
+    val networkHandler: NetworkHandler
 }
 
 
@@ -54,5 +56,9 @@ class DefaultAppContainer(private val context: Context): AppContainer {
 
     override val workerManagerRepository: WorkManagerRepository by lazy {
         WorkManagerRepository(context)
+    }
+
+    override val networkHandler: NetworkHandler by lazy {
+        NetworkHandler(context)
     }
 }
