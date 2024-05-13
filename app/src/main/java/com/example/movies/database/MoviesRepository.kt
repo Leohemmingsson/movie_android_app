@@ -42,7 +42,7 @@ interface SavedMoviesRepository {
     suspend fun getFavoriteMovie(id: Long): Movie
     suspend fun deleteFavoriteMovie(id: Long)
     suspend fun getLatestMovies(latestType: Int): List<Movie>
-    suspend fun deleteNotFavoriteMovies()
+    suspend fun deleteNotFavoriteOrLatest(latestType: Int)
     suspend fun insertLatestMovies(movies: List<Movie>, latestType: Int)
 }
 
@@ -77,9 +77,8 @@ class FavoriteMoviesRepository(private val movieDao: MovieDao): SavedMoviesRepos
         return movieDao.getLatestMovies(latestType)
     }
 
-    override suspend fun deleteNotFavoriteMovies() {
-        movieDao.setLatestToZero()
-        movieDao.deleteNonFavoriteMovies()
+    override suspend fun deleteNotFavoriteOrLatest(latestType: Int) {
+        movieDao.deleteNonFavoriteOrLatest(latestType)
     }
 
     override suspend fun insertLatestMovies(movies: List<Movie>, latestType: Int) {

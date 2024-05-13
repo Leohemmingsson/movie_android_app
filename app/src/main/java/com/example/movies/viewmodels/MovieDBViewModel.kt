@@ -16,6 +16,8 @@ import com.example.movies.database.WorkManagerRepository
 import com.example.movies.model.Movie
 import com.example.movies.model.MovieVideo
 import com.example.movies.model.Review
+import com.example.movies.utils.isNetworkAvailable
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -49,9 +51,13 @@ class MovieDBViewModel(
 
     fun getPopularMovies() {
         viewModelScope.launch {
-            movieListUiState = MovieListUiState.Loading
+          movieListUiState = MovieListUiState.Loading
+
+            savedMoviesRepository.deleteNotFavoriteOrLatest(1)
 
             workerManagerRepository.getMovies("popular")
+
+            delay(2000L)
 
             movieListUiState = try {
                 MovieListUiState.Success(savedMoviesRepository.getLatestMovies(1))
@@ -67,7 +73,14 @@ class MovieDBViewModel(
     fun getTopRatedMovies() {
         viewModelScope.launch {
             movieListUiState = MovieListUiState.Loading
-//            workerManagerRepository.getMovies("top_ranked")
+
+
+            savedMoviesRepository.deleteNotFavoriteOrLatest(2)
+
+            workerManagerRepository.getMovies("top_ranked")
+
+            delay(2000L)
+
             movieListUiState = try {
                 MovieListUiState.Success(savedMoviesRepository.getLatestMovies(2))
 //                MovieListUiState.Success(moviesRepository.getTopRankedMovies().results)

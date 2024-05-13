@@ -35,7 +35,7 @@ interface MovieDao {
     @Query("UPDATE favorite_movies SET latest = 0")
     suspend fun setLatestToZero()
 
-    @Query("DELETE FROM favorite_movies WHERE isFavorite = 0")
-    suspend fun deleteNonFavoriteMovies()
+    @Query("DELETE FROM favorite_movies WHERE isFavorite = 0 AND latest != :latestType")
+    suspend fun deleteNonFavoriteOrLatest(latestType: Int)
 
 }
