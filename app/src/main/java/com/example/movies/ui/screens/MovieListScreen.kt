@@ -10,17 +10,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.movies.R
 import com.example.movies.model.Movie
 import com.example.movies.ui.theme.MoviesTheme
 import com.example.movies.utils.Constants
@@ -61,6 +65,24 @@ fun MovieListScreen(
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(16.dp)
                     )
+                }
+            }
+            is MovieListUiState.NoInternet -> {
+                item {
+                    Column {
+                    Icon(
+                        painter = painterResource(R.drawable.wifi_off_24px),
+                        contentDescription = "No wifi",
+                        modifier = Modifier.size(24.dp)
+                    )
+
+                    Text(
+                        text = "No Internet Connection!",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    }
+
                 }
             }
         }

@@ -31,8 +31,17 @@ class NetworkHandler(private val context: Context) {
     }
 
     init {
+        val networkAvailable = isNetworkAvailable()
+        networkLiveData.postValue(networkAvailable)
         connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
     }
+
+    private fun isNetworkAvailable(): Boolean {
+        val activeNetwork = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
 
     fun getNetworkLiveData(): LiveData<Boolean> = networkLiveData
 
